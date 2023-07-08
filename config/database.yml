@@ -1,0 +1,15 @@
+default: &default
+  adapter: sqlite3
+  encoding: unicode
+  host: localhost
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  username: soumya
+  password:
+
+development:
+  <<: *default
+  database: habit-tracker-development.sqlite3
+
+test:
+  <<: *default
+  database: habit-tracker-test.sqlite3
