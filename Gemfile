@@ -12,7 +12,8 @@ group :development, :test do
   gem 'faker'
 end
 
-group :development do 
+group :development do
+  gem 'interactor'
   gem 'foreman'
   gem 'pry'
   gem 'rubocop'

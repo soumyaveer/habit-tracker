@@ -21,6 +21,7 @@ GEM
     foreman (0.87.2)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
+    interactor (3.1.2)
     json (2.6.2)
     method_source (1.0.0)
     minitest (5.16.3)
@@ -107,6 +108,7 @@ DEPENDENCIES
   activerecord
   faker
   foreman
+  interactor
   pg
   pry
   puma
