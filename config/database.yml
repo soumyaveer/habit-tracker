@@ -8,8 +8,8 @@ default: &default
 
 development:
   <<: *default
-  database: habit-tracker-development.sqlite3
+  database: habit-tracker-development
 
 test:
   <<: *default
-  database: habit-tracker-test.sqlite3
+  database: habit-tracker-test

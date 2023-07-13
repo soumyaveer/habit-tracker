@@ -7,5 +7,3 @@ require_all "app"
 
 # Load Pry only in development env
 require "pry" if defined?(Pry)
-
-require "rack-flash"

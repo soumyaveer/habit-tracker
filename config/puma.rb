@@ -4,7 +4,8 @@ threads threads_count, threads_count
 
 preload_app!
 
-rackup      DefaultRackup
+# Remove becuase https://github.com/puma/puma/issues/2989 and hence no longer required
+# rackup      DefaultRackup
 port        ENV["PORT"]     || 3000
 environment ENV["RACK_ENV"] || "development"
 
