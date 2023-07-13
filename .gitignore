@@ -5,10 +5,11 @@
 # Built Visual Studio Code Extensions
 *.vsix
 
-
 #Rubymine files
 .idea/
-
 .DS_Store
 
+public/dist
+coverage
+test_results
 
