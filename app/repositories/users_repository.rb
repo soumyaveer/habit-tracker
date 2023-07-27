@@ -1,4 +1,5 @@
-class UsersRepository < UserEntity
+class UsersRepository < SqlRepository
+
   def new(email:)
   end
 end
