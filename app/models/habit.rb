@@ -1,5 +1,5 @@
 class Habit < ApplicationRecord
-  has_many :user_habits, dependant: :destroy
+  has_many :user_habits, dependent: :destroy
   has_many :users, through: :user_habits
 
   validates :name, presence: true, uniqueness: true

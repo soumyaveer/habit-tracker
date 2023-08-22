@@ -2,15 +2,15 @@ def user_attributes
   {
     email: Faker::Internet.email,
     name: Faker::Lorem.name,
-    password: Faker::Internet.word
+    password: Faker::Internet.password
   }
 end
 
-def habit_attributes(status: 'pending')
+def habit_attributes
   {
     name: Faker::Hobby.activity,
-    status: status
-    completed_at: (DateTime.now if status == 'pending'
+    status: 'pending',
+    completed_at: nil,
     completed_before: 1.day.from.now
   }
 end
