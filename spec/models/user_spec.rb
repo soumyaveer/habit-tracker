@@ -1,9 +1,8 @@
-RSpec.describe "User" do
+RSpec.describe 'User' do
   context 'validations' do
-    let(:user) { User.create(user_attributes) }
+    let(:user) { User.new(user_attributes) }
 
     context 'with invalid data it fails validation' do
-
       it 'when name is blank' do
         expect(true).to be_truthy
         user.name = nil
