@@ -4,13 +4,17 @@ require "./config/environment"
 class ApplicationController < Sinatra::Base
   configure do
     enable :sessions
-    set :session_secret, "secret"
+    set :session_secret, ENV.fetch('SESSION_SECRET') { SecureRandom.hex(64) }
     use Rack::CommonLogger, STDOUT
   end
 
   configure :development do
     require "sinatra/reloader"
     register Sinatra::Reloader
+  end
+
+  get "/" do
+    erb :'/index'
   end
 
   def json_request_body

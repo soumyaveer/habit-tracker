@@ -169,6 +169,7 @@ DEPENDENCIES
   require_all
   rest-client
   rspec
+  rspec-core
   rubocop
   sequel
   simplecov

@@ -28,6 +28,7 @@ end
 
 group :test do
   gem 'rspec'
+  gem 'rspec-core'
   gem "rack-test"
   gem "simplecov"
   gem 'timecop', '~> 0.8.1'
