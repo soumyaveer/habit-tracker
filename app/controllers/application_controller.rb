@@ -13,8 +13,8 @@ class ApplicationController < Sinatra::Base
     register Sinatra::Reloader
   end
 
-  get '/api/users' do
-    "Hello World"
+  get "/" do
+    erb :'/index'
   end
 
   def json_request_body
