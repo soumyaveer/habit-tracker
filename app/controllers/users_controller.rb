@@ -21,4 +21,25 @@ class UsersController < ApplicationController
         json user_json
       end
    end
+
+   patch '/api/users/:id' do
+    user = User.find(params[:id])
+    user.email = json_req_body_attrs[:email] if json_req_body_attrs[:email] 
+    user.name = json_req_body_attrs[:name] if json_req_body_attrs[:name]
+    user.password = json_req_body_attrs[:passowrd]  if json_req_body_attrs[:password] 
+    
+    if user.save
+      json present_resource(user, "user")
+    else
+      status(422)
+      user_json = user.as_json
+      user_json[:errors] = user.errors.full_messages
+
+      json present_errors(user_json, 'user') 
+    end
+  end
+
+  def json_req_body_attrs
+    json_request_body[:data][:attributes]
+  end
 end
