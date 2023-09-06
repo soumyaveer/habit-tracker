@@ -39,6 +39,17 @@ class UsersController < ApplicationController
     end
   end
 
+  delete '/api/users/:id' do
+    user = User.find(params[:id])
+
+    if user
+      user.destroy!
+      status 204
+    else
+      status 404
+    end
+  end
+
   def json_req_body_attrs
     json_request_body[:data][:attributes]
   end
