@@ -39,10 +39,11 @@ class ApplicationController < Sinatra::Base
     {
       "data": 
         {
-          "type": obj.klass,
+          "type": obj.class,
           "id": obj.id,
-          "attributes": obj.exclude(:id)
+          "attributes": obj
+
         }
-    }
+      }.as_json
   end
 end

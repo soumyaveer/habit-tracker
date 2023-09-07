@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
    get "/api/users" do
      users = User.all
-     json users: users.as_json
+     json users.map { |user| present_resource(user, 'user') }
    end
 
    post "/api/users" do
@@ -12,7 +12,7 @@ class UsersController < ApplicationController
       )
 
       if user.save
-        json user.as_json
+        json present_resource(user, "user")
       else
         status(422)
         user_json = user.as_json
@@ -45,6 +45,17 @@ class UsersController < ApplicationController
     if user
       user.destroy!
       status 204
+    else
+      status 404
+    end
+  end
+
+  get '/api/users/:id' do
+    user = User.find(params[:id])
+
+    if user 
+      # user_json = user.as_json
+      json users: present_resource(user, 'user')
     else
       status 404
     end
