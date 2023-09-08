@@ -24,6 +24,7 @@ class ApplicationController < Sinatra::Base
 
 
   def present_errors(err, type)
+    puts "I am here"
     {
       "data": 
         {

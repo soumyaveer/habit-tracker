@@ -9,4 +9,13 @@ class Habit < ApplicationRecord
   }
 
   validates :completed_before, presence: true
+
+  def mark_complete!
+    self.completed_at = DateTime.now
+    if self.completed_at <= self.completed_before
+      self.status = 'done'
+    elsif self.completed_at > self.completed_before
+      self.status = 'missed'
+    end
+  end
 end
