@@ -18,4 +18,12 @@ class Habit < ApplicationRecord
       self.status = 'missed'
     end
   end
+
+  # Does it make sense to check, if the current time is < completed_before then raise an error
+  # 'Can't mark as missed'? 
+  def mark_incomplete!
+    self.completed_at = DateTime.now
+    self.status = 'missed'
+    self.save
+  end
 end

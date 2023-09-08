@@ -77,6 +77,25 @@ class HabitsController < ApplicationController
     end
   end
 
+  post '/api/habits/:id/missed' do
+    habit = Habit.find(params[:id])  
+    if habit
+      
+      if habit.mark_incomplete!
+        user = UserHabit.find_by(habit_id: habit.id)
+        json present_resource(habit, "habit").merge(present_relationship_data(user, 'user_habit'))
+      else
+        status(422)
+        habit_json = habit.as_json
+        habit_json[:errors] = habit.errors.full_messages
+
+        json present_resource(habit_json, 'habit') 
+      end
+    else
+      status(404)
+    end 
+  end
+
   def json_req_body_attrs
     json_request_body[:data][:attributes]
   end
