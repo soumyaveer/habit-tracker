@@ -96,6 +96,22 @@ class HabitsController < ApplicationController
     end 
   end
 
+  patch '/api/habits/:id' do
+    habit = Habit.find(params[:id])
+    habit.name = json_req_body_attrs[:name]
+
+    if habit.save
+      user = UserHabit.find_by(habit_id: habit.id)
+      json present_resource(habit, "habit").merge(present_relationship_data(user, 'user_habit'))
+    else
+      status(422)
+      habit_json = habit.as_json
+      habit_json[:errors] = habit.errors.full_messages
+
+      json present_resource(habit_json, 'habit') 
+    end
+  end
+
   def json_req_body_attrs
     json_request_body[:data][:attributes]
   end
