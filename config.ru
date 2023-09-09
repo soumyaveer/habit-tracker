@@ -6,5 +6,6 @@ use Rack::MethodOverride
 # TODO: Add controllers here
 # use ControllerName
 use UsersController
+use HabitsController
 
 run ApplicationController
