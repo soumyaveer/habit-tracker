@@ -26,9 +26,12 @@ class HabitsController < ApplicationController
 
   get '/api/habits' do
     habits = Habit.all
-
+    
+    if params[:from].present? && params[:to].present? 
+      habits = habits.filter_by_dates(Time.parse(params[:from]), Time.parse(params[:to]))
+    end
     all_habits = habits.map do |habit| 
-      user = UserHabit.find_by(habit_id: habit.id) 
+      user = UserHabit.find_by(habit_id: habit.id) if params[:include] == 'user'
       if user
         present_resource(habit, 'habit').merge(present_relationship_data(user, 'user_habit'))
       else
