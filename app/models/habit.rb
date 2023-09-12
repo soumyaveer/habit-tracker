@@ -10,6 +10,9 @@ class Habit < ApplicationRecord
 
   validates :completed_before, presence: true
 
+  scope :filter_by_dates, -> (start_date, end_date) { where("created_at >= :start_date AND created_at <= :end_date",
+                                  {start_date: start_date, end_date: end_date}) }
+
   def mark_complete!
     self.completed_at = DateTime.now
     if self.completed_at <= self.completed_before
