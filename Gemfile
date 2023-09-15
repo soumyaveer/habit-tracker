@@ -12,6 +12,7 @@ gem 'sinatra'
 gem 'sinatra-contrib', require: false
 gem 'sinatra-activerecord', '~> 2.0', '>= 2.0.9'
 gem 'sequel'
+gem 'kaminari'
 
 group :development, :test do
   gem "database_cleaner", git: "https://github.com/bmabey/database_cleaner.git"

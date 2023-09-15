@@ -1,4 +1,7 @@
 class HabitsController < ApplicationController
+  DEFAULT_PAGE_NUMBER = 1
+  DEFAULT_PAGE_SIZE = 3
+
   post '/api/habits' do
       habit = Habit.new(
         name: json_req_body_attrs[:name],
@@ -25,13 +28,16 @@ class HabitsController < ApplicationController
   end
 
   get '/api/habits' do
-    habits = Habit.all
+    habits = Habit.order(:id).page(page_number).per(page_size)
     
     if params[:from].present? && params[:to].present? 
       habits = habits.filter_by_dates(Time.parse(params[:from]), Time.parse(params[:to]))
     end
     all_habits = habits.map do |habit| 
-      user = UserHabit.find_by(habit_id: habit.id) if params[:include] == 'user'
+      user = if params[:include] == 'user'
+        user_habit = UserHabit.find_by(habit_id: habit.id) 
+        user_habit&.user ?  user_habit.user : nil
+      end
       if user
         present_resource(habit, 'habit').merge(present_relationship_data(user, 'user_habit'))
       else
@@ -85,8 +91,9 @@ class HabitsController < ApplicationController
     if habit
       
       if habit.mark_incomplete!
-        user = UserHabit.find_by(habit_id: habit.id)
-        json present_resource(habit, "habit").merge(present_relationship_data(user, 'user_habit'))
+        user_habit = UserHabit.find_by(habit_id: habit.id)
+        user = user_habit.user
+        json present_resource(habit, "habit").merge(present_relationship_data(user, 'user'))
       else
         status(422)
         habit_json = habit.as_json
@@ -105,7 +112,7 @@ class HabitsController < ApplicationController
 
     if habit.save
       user = UserHabit.find_by(habit_id: habit.id)
-      json present_resource(habit, "habit").merge(present_relationship_data(user, 'user_habit'))
+      json present_resource(habit, "habit").merge(present_relationship_data(user, 'user'))
     else
       status(422)
       habit_json = habit.as_json
@@ -114,6 +121,8 @@ class HabitsController < ApplicationController
       json present_resource(habit_json, 'habit') 
     end
   end
+
+  private
 
   def json_req_body_attrs
     json_request_body[:data][:attributes]
@@ -130,5 +139,13 @@ class HabitsController < ApplicationController
         }
       }
     }.as_json
+  end
+
+  def page_number
+    params[:page] && params[:page][:number] ? params[:page][:number] : DEFAULT_PAGE_NUMBER
+  end
+
+  def page_size
+    params[:page] && params[:page][:size] ? params[:page][:size] : DEFAULT_PAGE_SIZE
   end
 end
