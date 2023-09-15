@@ -1,6 +1,6 @@
 class HabitsController < ApplicationController
-  DEFAULT_PAGE_NUMBER = 1
-  DEFAULT_PAGE_SIZE = 3
+  DEFAULT_PAGE_NUMBER = 1.freeze
+  DEFAULT_PAGE_SIZE = 3.freeze
 
   post '/api/habits' do
       habit = Habit.new(
@@ -139,6 +139,28 @@ class HabitsController < ApplicationController
         }
       }
     }.as_json
+  end
+
+  # TODO: How to calculate total_pages 
+  def metadata
+    {
+      meta: {
+        totalPages: total_pages
+      }
+    }.as_json
+  end
+
+  # TODO: How to calculat and return links
+  def links
+    {
+      links: {
+        self: request.original_url,
+        first: first_page_url(request.original_url),
+        prev: prev_page_url(request.original_url),
+        next: next_page_url(request.original_url),
+        last: last_page_url(request.original_url)
+      }
+  }.as_json
   end
 
   def page_number
