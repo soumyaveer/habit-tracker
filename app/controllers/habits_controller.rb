@@ -29,22 +29,23 @@ class HabitsController < ApplicationController
 
   get '/api/habits' do
     habits = Habit.order(:id).page(page_number).per(page_size)
-    
+    presented_json = {meta: {}, data:[], links:{}}
+
     if params[:from].present? && params[:to].present? 
       habits = habits.filter_by_dates(Time.parse(params[:from]), Time.parse(params[:to]))
     end
-    all_habits = habits.map do |habit| 
+    filtered_habits = habits.map do |habit| 
       user = if params[:include] == 'user'
         user_habit = UserHabit.find_by(habit_id: habit.id) 
         user_habit&.user ?  user_habit.user : nil
       end
       if user
-        present_resource(habit, 'habit').merge(present_relationship_data(user, 'user_habit'))
+        presented_json[:data] << present_resource(habit, 'habit').merge(present_relationship_data(user, 'user_habit'))
       else
-        present_resource(habit, 'habit')
+        presented_json[:data] << present_resource(habit, 'habit')
       end
     end
-    json all_habits
+    json presented_json.merge(metadata(habits)).merge(links)
   end
 
   get '/api/habits/:id' do
@@ -141,11 +142,10 @@ class HabitsController < ApplicationController
     }.as_json
   end
 
-  # TODO: How to calculate total_pages 
-  def metadata
+  def metadata(resource)
     {
       meta: {
-        totalPages: total_pages
+        totalPages: resource&.total_pages || 0
       }
     }.as_json
   end
@@ -154,11 +154,11 @@ class HabitsController < ApplicationController
   def links
     {
       links: {
-        self: request.original_url,
-        first: first_page_url(request.original_url),
-        prev: prev_page_url(request.original_url),
-        next: next_page_url(request.original_url),
-        last: last_page_url(request.original_url)
+        self: request.url
+        # first: first_page_url(request.url),
+        # prev: prev_page_url(request),
+        # next: next_page_url(request),
+        # last: last_page_url(request)
       }
   }.as_json
   end
