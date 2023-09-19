@@ -28,6 +28,7 @@ class HabitsController < ApplicationController
   end
 
   get '/api/habits' do
+    puts request.inspect
     habits = Habit.order(:id).page(page_number).per(page_size)
     presented_json = {meta: {}, data:[], links:{}}
 
@@ -45,7 +46,7 @@ class HabitsController < ApplicationController
         presented_json[:data] << present_resource(habit, 'habit')
       end
     end
-    json presented_json.merge(metadata(habits)).merge(links)
+    json presented_json.merge(metadata(habits)).merge(links(habits))
   end
 
   get '/api/habits/:id' do
@@ -150,17 +151,42 @@ class HabitsController < ApplicationController
     }.as_json
   end
 
-  # TODO: How to calculat and return links
-  def links
+  def links(resource)
     {
       links: {
-        self: request.url
-        # first: first_page_url(request.url),
-        # prev: prev_page_url(request),
-        # next: next_page_url(request),
-        # last: last_page_url(request)
+        self: request.url,
+        first: first_page_url(request),
+        prev: prev_page_url(request),
+        next: next_page_url(request),
+        last: last_page_url(request, resource)
       }
-  }.as_json
+    }.as_json
+  end
+
+  def first_page_url(req)
+    new_page = Habit.page(1).current_page
+    build_query_string(req, new_page)
+  end
+
+  def prev_page_url(req)
+    new_page = Habit.page(page_number).per(page_size).prev_page
+    build_query_string(req, new_page)
+  end
+
+  def next_page_url(req)
+    new_page = Habit.page(page_number).per(page_size).next_page
+    build_query_string(req, new_page)
+  end
+
+  def last_page_url(req, resource)
+    new_page = Habit.page(resource.total_pages).current_page
+    build_query_string(req, new_page)
+  end
+
+  def build_query_string(req, new_page)
+    current_page_number = req.params['page']['number']
+    query_string = req.query_string.gsub("page[number]=#{current_page_number}", "page[number]=#{new_page}")
+    req.base_url + req.path + "?" + query_string
   end
 
   def page_number
