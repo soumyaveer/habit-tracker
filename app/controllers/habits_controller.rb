@@ -41,12 +41,18 @@ class HabitsController < ApplicationController
         user_habit&.user ?  user_habit.user : nil
       end
       if user
-        presented_json[:data] << present_resource(habit, 'habit').merge(present_relationship_data(user, 'user_habit'))
+        presented_json[:data] << HabitPresenter.new(
+          object: habit, 
+          type: 'habit',
+          relationship_obj: user,
+          relationship_type: 'user_habit'
+        ).present
       else
-        presented_json[:data] << present_resource(habit, 'habit')
+        presented_json[:data] << HabitPresenter.new( object: habit, type: 'habit',).present_resource
       end
     end
-    json presented_json.merge(metadata(habits)).merge(links(habits))
+    json presented_json.as_json
+    # .merge(metadata(habits)).merge(links(habits))
   end
 
   get '/api/habits/:id' do
@@ -130,64 +136,64 @@ class HabitsController < ApplicationController
     json_request_body[:data][:attributes]
   end
 
-  def present_relationship_data(obj, resource_name)
-    {
-      "relationships": {
-        "#{resource_name}":{
-          "data": {
-            "type": obj.class,
-            "id": obj.id,
-          }
-        }
-      }
-    }.as_json
-  end
+  # def present_relationship_data(obj, resource_name)
+  #   {
+  #     "relationships": {
+  #       "#{resource_name}":{
+  #         "data": {
+  #           "type": obj.class,
+  #           "id": obj.id,
+  #         }
+  #       }
+  #     }
+  #   }.as_json
+  # end
 
-  def metadata(resource)
-    {
-      meta: {
-        totalPages: resource&.total_pages || 0
-      }
-    }.as_json
-  end
+  # def metadata(resource)
+  #   {
+  #     meta: {
+  #       totalPages: resource&.total_pages || 0
+  #     }
+  #   }.as_json
+  # end
 
-  def links(resource)
-    {
-      links: {
-        self: request.url,
-        first: first_page_url(request),
-        prev: prev_page_url(request),
-        next: next_page_url(request),
-        last: last_page_url(request, resource)
-      }
-    }.as_json
-  end
+  # def links(resource)
+  #   {
+  #     links: {
+  #       self: request.url,
+  #       first: first_page_url,
+  #       prev: prev_page_url,
+  #       next: next_page_url,
+  #       last: last_page_url(resource)
+  #     }
+  #   }.as_json
+  # end
 
-  def first_page_url(req)
-    new_page = Habit.page(1).current_page
-    build_query_string(req, new_page)
-  end
+  # def first_page_url(req)
+  #   new_page = Habit.page(1).current_page
+  #   build_query_string(req, new_page)
+  # end
 
-  def prev_page_url(req)
-    new_page = Habit.page(page_number).per(page_size).prev_page
-    build_query_string(req, new_page)
-  end
+  # def prev_page_url(req)
+  #   new_page = Habit.page(page_number).per(page_size).prev_page
+  #   build_query_string(req, new_page)
+  # end
 
-  def next_page_url(req)
-    new_page = Habit.page(page_number).per(page_size).next_page
-    build_query_string(req, new_page)
-  end
+  # def next_page_url(req)
+  #   new_page = Habit.page(page_number).per(page_size).next_page
+  #   build_query_string(req, new_page)
+  # end
 
-  def last_page_url(req, resource)
-    new_page = Habit.page(resource.total_pages).current_page
-    build_query_string(req, new_page)
-  end
+  # def last_page_url(req, resource)
+  #   new_page = Habit.page(resource.total_pages).current_page
+  #   build_query_string(req, new_page)
+  # end
 
-  def build_query_string(req, new_page)
-    current_page_number = req.params['page']['number']
-    query_string = req.query_string.gsub("page[number]=#{current_page_number}", "page[number]=#{new_page}")
-    req.base_url + req.path + "?" + query_string
-  end
+  # def build_query_string(req, new_page)
+  #   current_page_number = req.params['page']['number']
+  #   query_string = req.query_string.gsub("page[number]=#{current_page_number}", "page[number]=#{new_page}")
+  #   req.base_url + req.path + "?" + query_string
+  # end
 
   def page_number
     params[:page] && params[:page][:number] ? params[:page][:number] : DEFAULT_PAGE_NUMBER
