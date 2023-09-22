@@ -2,6 +2,7 @@ require_relative './presenter'
 class HabitPresenter < Presenter
   attr_reader :obj, :type, :relationship_obj, :relationship_type, :obj_collection, :links_metadata, :users_json
   
+  
   def initialize(
     object: nil, 
     type: nil, 
@@ -26,12 +27,14 @@ class HabitPresenter < Presenter
     present_resource.merge!(relationship)
   end
 
+  alias_method :build_user_json, :present_user
+
   def present_users
     users_json.merge!(metadata).merge!(links)
   end
 
   private 
-  
+
   def relationship
     {
       "relationships": {

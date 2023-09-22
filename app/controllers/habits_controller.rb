@@ -17,18 +17,17 @@ class HabitsController < ApplicationController
       )
      
     if habit.save && user_habit.save 
-      json present_resource(habit, "habit")
+      json HabitPresenter.new(object: habit, type: "Habit").present_user
     else
       status(422)
       habit_json = habit.as_json
       habit_json[:errors] = habit.errors.full_messages
 
-      json present_resource(habit_json, 'habit') 
+      json HabitPresenter.new(object: habit_json, type: 'habit').present_errors
     end
   end
 
   get '/api/habits' do
-    puts request.inspect
     habits = Habit.order(:id).page(page_number).per(page_size)
     presented_json = {meta: {}, data:[], links: {}}
 
@@ -46,23 +45,33 @@ class HabitsController < ApplicationController
           type: 'habit',
           relationship_obj: user,
           relationship_type: 'user_habit',
-        ).present_user
+        ).build_user_json
       else
         presented_json[:data] << HabitPresenter.new( 
           object: habit, 
           type: 'habit', 
           obj_collection: habits,
-        ).present_user
+        ).build_user_json
       end
     end
-    json HabitPresenter.new(obj_collection: habits, links_metadata: links_metadata(habits), users_json: presented_json.as_json).present_users
+
+    json HabitPresenter.new(
+      obj_collection: habits, 
+      links_metadata: links_metadata(habits), 
+      users_json: presented_json.as_json
+    ).present_users
   end
 
   get '/api/habits/:id' do
     habit = Habit.find(params[:id])
     if habit
-      user = UserHabit.find_by(habit_id: habit.id)
-      json present_resource(habit, "habit").merge(present_relationship_data(user, 'user_habit'))
+      user = UserHabit.find_by(habit_id: habit.id).user
+      json HabitPresenter.new(
+        object: habit, 
+        type: "habit",
+        relationship_obj: user,
+        relationship_type: 'user'
+      ).present_user
     else
       status(404)
     end
@@ -83,14 +92,19 @@ class HabitsController < ApplicationController
     if habit
       habit.mark_complete!
       if habit.save
-        user = UserHabit.find_by(habit_id: habit.id)
-        json present_resource(habit, "habit").merge(present_relationship_data(user, 'user_habit'))
+        user = UserHabit.find_by(habit_id: habit.id).user
+        json HabitPresenter.new(
+          object: habit, 
+          type: "habit",
+          relationship_obj: user, 
+          relationship_type: 'user'
+        ).present_user
       else
         status(422)
         habit_json = habit.as_json
         habit_json[:errors] = habit.errors.full_messages
 
-        json present_resource(habit_json, 'habit') 
+        json HabitPresenter.new(object: habit_json, type: 'habit') 
       end
     else
       status(404)
@@ -102,15 +116,19 @@ class HabitsController < ApplicationController
     if habit
       
       if habit.mark_incomplete!
-        user_habit = UserHabit.find_by(habit_id: habit.id)
-        user = user_habit.user
-        json present_resource(habit, "habit").merge(present_relationship_data(user, 'user'))
+        user = UserHabit.find_by(habit_id: habit.id).user
+        json HabitPresenter.new(
+          object: habit, 
+          type: "habit",
+          relationship_obj: user, 
+          relationship_type: 'user'
+        ).present_user
       else
         status(422)
         habit_json = habit.as_json
         habit_json[:errors] = habit.errors.full_messages
 
-        json present_resource(habit_json, 'habit') 
+        json HabitPresenter.new(object: habit_json, type: 'habit') 
       end
     else
       status(404)
@@ -123,13 +141,18 @@ class HabitsController < ApplicationController
 
     if habit.save
       user = UserHabit.find_by(habit_id: habit.id)
-      json present_resource(habit, "habit").merge(present_relationship_data(user, 'user'))
+      json HabitPresenter.new(
+        object: habit, 
+        type: "habit",
+        relationship_obj: user, 
+        relationship_type: 'user'
+      ).present_user
     else
       status(422)
       habit_json = habit.as_json
       habit_json[:errors] = habit.errors.full_messages
 
-      json present_resource(habit_json, 'habit') 
+      json HabitPresenter.new(object: habit_json, type: 'habit')     
     end
   end
 
