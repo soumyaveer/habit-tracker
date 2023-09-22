@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe 'User' do
   context 'validations' do
     let(:user) { User.new(user_attributes) }

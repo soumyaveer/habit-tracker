@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 User.destroy_all
 Habit.destroy_all
 UserHabit.destroy_all
 
 # TODO: set up seed data
 users = []
-5.times do 
+5.times do
   users << User.create(
     name: Faker::Internet.username,
     email: Faker::Internet.email,
@@ -14,7 +16,7 @@ users = []
 end
 
 pending_habits = []
-5.times do 
+5.times do
   pending_habits << Habit.create(
     name: Faker::Hobby.activity,
     status: 'pending',
@@ -24,7 +26,7 @@ pending_habits = []
 end
 
 missed_habits = []
-5.times do 
+5.times do
   missed_habits << Habit.create(
     name: Faker::Hobby.activity,
     status: 'missed',
@@ -34,7 +36,7 @@ missed_habits = []
 end
 
 completed_habits = []
-5.times do 
+5.times do
   completed_habits << Habit.create(
     name: Faker::Hobby.activity,
     status: 'done',
@@ -44,14 +46,10 @@ completed_habits = []
 end
 
 users.each do |user|
-  3.times do 
+  3.times do
     UserHabit.create(
-      user: user,
+      user:,
       habit: [pending_habits, missed_habits, completed_habits].flatten.sample
     )
   end
 end
-
-
-  
-

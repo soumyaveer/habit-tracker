@@ -1,9 +1,11 @@
-ENV["RACK_ENV"] = "test"
+# frozen_string_literal: true
 
-require_relative "../config/environment"
-require "rack/test"
-require_relative "factories"
-require "simplecov"
+ENV['RACK_ENV'] = 'test'
+
+require_relative '../config/environment'
+require 'rack/test'
+require_relative 'factories'
+require 'simplecov'
 
 ActiveRecord::Base.logger = nil
 
@@ -21,9 +23,9 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
   end
 
-  config.order = "default"
+  config.order = 'default'
 end
 
 def app
-  Rack::Builder.parse_file("config.ru").first
+  Rack::Builder.parse_file('config.ru').first
 end
