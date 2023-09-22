@@ -29,4 +29,8 @@ class Habit < ApplicationRecord
     self.status = 'missed'
     self.save
   end
+
+  def find_total_pages
+    self.total_pages || 0
+  end
 end

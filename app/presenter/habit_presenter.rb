@@ -1,18 +1,37 @@
 require_relative './presenter'
 class HabitPresenter < Presenter
-  attr_reader :obj, :type, :relationship_obj, :relationship_type
-  def initialize(object:, type:, relationship_obj: nil, relationship_type: nil)
+  attr_reader :obj, :type, :relationship_obj, :relationship_type, :obj_collection, :links_metadata, :users_json
+  
+  def initialize(
+    object: nil, 
+    type: nil, 
+    relationship_obj: nil,
+    relationship_type: nil, 
+    obj_collection: [], 
+    links_metadata: {},
+    users_json: {}
+  )
     @obj = object
     @type = type
     @relationship_obj = relationship_obj
     @relationship_type = relationship_type 
+    @obj_collection = obj_collection
+    @links_metadata = links_metadata
+    @users_json = users_json
   end
 
-  def present
-    return present_resource.merge(relationship) if relationship_obj.present?
-    present_resource
+  def present_user
+    return present_resource if relationship_obj.blank?
+
+    present_resource.merge!(relationship)
   end
 
+  def present_users
+    users_json.merge!(metadata).merge!(links)
+  end
+
+  private 
+  
   def relationship
     {
       "relationships": {
@@ -26,49 +45,17 @@ class HabitPresenter < Presenter
     }.as_json
   end
 
-  def metadata(obj)
+  def metadata
     {
       meta: {
-        totalPages: obj&.total_pages || 0
+        totalPages: obj_collection.total_pages
       }
     }.as_json
   end
 
-  def links(obj)
+  def links
     {
-      links: {
-        self: request.url,
-        first: first_page_url,
-        prev: prev_page_url,
-        next: next_page_url,
-        last: last_page_url(obj)
-      }
+      links: links_metadata
     }.as_json
-  end
-
-  def first_page_url
-    new_page = Habit.page(1).current_page
-    build_query_string(new_page)
-  end
-
-  def prev_page_url
-    new_page = Habit.page(page_number).per(page_size).prev_page
-    build_query_string(new_page)
-  end
-
-  def next_page_url
-    new_page = Habit.page(page_number).per(page_size).next_page
-    build_query_string(new_page)
-  end
-
-  def last_page_url(obj)
-    new_page = Habit.page(obj.total_pages).current_page
-    build_query_string(new_page)
-  end
-
-  def build_query_string(new_page)
-    current_page_number = request.params['page']['number']
-    query_string = request.query_string.gsub("page[number]=#{current_page_number}", "page[number]=#{new_page}")
-    request.base_url + request.path + "?" + query_string
   end
 end
