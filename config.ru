@@ -1,5 +1,7 @@
-require "./config/environment"
-require "sinatra/json"
+# frozen_string_literal: true
+
+require './config/environment'
+require 'sinatra/json'
 
 use Rack::MethodOverride
 

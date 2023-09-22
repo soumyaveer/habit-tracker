@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class User < ApplicationRecord
   has_many :user_habits, dependent: :destroy
   has_many :habits, through: :user_habits

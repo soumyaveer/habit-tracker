@@ -1,23 +1,25 @@
+# frozen_string_literal: true
+
 class HabitsController < ApplicationController
-  DEFAULT_PAGE_NUMBER = 1.freeze
-  DEFAULT_PAGE_SIZE = 3.freeze
+  DEFAULT_PAGE_NUMBER = 1
+  DEFAULT_PAGE_SIZE = 3
 
   post '/api/habits' do
-      habit = Habit.new(
-        name: json_req_body_attrs[:name],
-        status: 'pending',
-        completed_before: DateTime.now + 1
-      )
-  
-      user = User.find(json_req_body_attrs[:user_id])
-  
-      user_habit = UserHabit.new(
-        habit: habit,
-        user: user
-      )
-     
-    if habit.save && user_habit.save 
-      json HabitPresenter.new(object: habit, type: "Habit").present_user
+    habit = Habit.new(
+      name: json_req_body_attrs[:name],
+      status: 'pending',
+      completed_before: DateTime.now + 1
+    )
+
+    user = User.find(json_req_body_attrs[:user_id])
+
+    user_habit = UserHabit.new(
+      habit:,
+      user:
+    )
+
+    if habit.save && user_habit.save
+      json HabitPresenter.new(object: habit, type: 'Habit').present_user
     else
       status(422)
       habit_json = habit.as_json
@@ -29,35 +31,35 @@ class HabitsController < ApplicationController
 
   get '/api/habits' do
     habits = Habit.order(:id).page(page_number).per(page_size)
-    presented_json = {meta: {}, data:[], links: {}}
+    presented_json = { meta: {}, data: [], links: {} }
 
-    if params[:from].present? && params[:to].present? 
+    if params[:from].present? && params[:to].present?
       habits = habits.filter_by_dates(Time.parse(params[:from]), Time.parse(params[:to]))
     end
-    filtered_habits = habits.map do |habit| 
+    habits.map do |habit|
       user = if params[:include] == 'user'
-        user_habit = UserHabit.find_by(habit_id: habit.id) 
-        user_habit&.user ?  user_habit.user : nil
-      end
-      if user
-        presented_json[:data] << HabitPresenter.new(
-          object: habit, 
-          type: 'habit',
-          relationship_obj: user,
-          relationship_type: 'user_habit',
-        ).build_user_json
-      else
-        presented_json[:data] << HabitPresenter.new( 
-          object: habit, 
-          type: 'habit', 
-          obj_collection: habits,
-        ).build_user_json
-      end
+               user_habit = UserHabit.find_by(habit_id: habit.id)
+               user_habit&.user ? user_habit.user : nil
+             end
+      presented_json[:data] << if user
+                                 HabitPresenter.new(
+                                   object: habit,
+                                   type: 'habit',
+                                   relationship_obj: user,
+                                   relationship_type: 'user_habit'
+                                 ).build_user_json
+                               else
+                                 HabitPresenter.new(
+                                   object: habit,
+                                   type: 'habit',
+                                   obj_collection: habits
+                                 ).build_user_json
+                               end
     end
 
     json HabitPresenter.new(
-      obj_collection: habits, 
-      links_metadata: links_metadata(habits), 
+      obj_collection: habits,
+      links_metadata: links_metadata(habits),
       users_json: presented_json.as_json
     ).present_users
   end
@@ -67,8 +69,8 @@ class HabitsController < ApplicationController
     if habit
       user = UserHabit.find_by(habit_id: habit.id).user
       json HabitPresenter.new(
-        object: habit, 
-        type: "habit",
+        object: habit,
+        type: 'habit',
         relationship_obj: user,
         relationship_type: 'user'
       ).present_user
@@ -78,8 +80,8 @@ class HabitsController < ApplicationController
   end
 
   delete '/api/habits/:id' do
-    habit = Habit.find(params[:id]) 
-    if habit 
+    habit = Habit.find(params[:id])
+    if habit
       habit.destroy!
       status(204)
     else
@@ -88,15 +90,15 @@ class HabitsController < ApplicationController
   end
 
   post '/api/habits/:id/done' do
-    habit = Habit.find(params[:id])  
+    habit = Habit.find(params[:id])
     if habit
       habit.mark_complete!
       if habit.save
         user = UserHabit.find_by(habit_id: habit.id).user
         json HabitPresenter.new(
-          object: habit, 
-          type: "habit",
-          relationship_obj: user, 
+          object: habit,
+          type: 'habit',
+          relationship_obj: user,
           relationship_type: 'user'
         ).present_user
       else
@@ -104,7 +106,7 @@ class HabitsController < ApplicationController
         habit_json = habit.as_json
         habit_json[:errors] = habit.errors.full_messages
 
-        json HabitPresenter.new(object: habit_json, type: 'habit') 
+        json HabitPresenter.new(object: habit_json, type: 'habit')
       end
     else
       status(404)
@@ -112,15 +114,15 @@ class HabitsController < ApplicationController
   end
 
   post '/api/habits/:id/missed' do
-    habit = Habit.find(params[:id])  
+    habit = Habit.find(params[:id])
     if habit
-      
+
       if habit.mark_incomplete!
         user = UserHabit.find_by(habit_id: habit.id).user
         json HabitPresenter.new(
-          object: habit, 
-          type: "habit",
-          relationship_obj: user, 
+          object: habit,
+          type: 'habit',
+          relationship_obj: user,
           relationship_type: 'user'
         ).present_user
       else
@@ -128,11 +130,11 @@ class HabitsController < ApplicationController
         habit_json = habit.as_json
         habit_json[:errors] = habit.errors.full_messages
 
-        json HabitPresenter.new(object: habit_json, type: 'habit') 
+        json HabitPresenter.new(object: habit_json, type: 'habit')
       end
     else
       status(404)
-    end 
+    end
   end
 
   patch '/api/habits/:id' do
@@ -142,9 +144,9 @@ class HabitsController < ApplicationController
     if habit.save
       user = UserHabit.find_by(habit_id: habit.id)
       json HabitPresenter.new(
-        object: habit, 
-        type: "habit",
-        relationship_obj: user, 
+        object: habit,
+        type: 'habit',
+        relationship_obj: user,
         relationship_type: 'user'
       ).present_user
     else
@@ -152,7 +154,7 @@ class HabitsController < ApplicationController
       habit_json = habit.as_json
       habit_json[:errors] = habit.errors.full_messages
 
-      json HabitPresenter.new(object: habit_json, type: 'habit')     
+      json HabitPresenter.new(object: habit_json, type: 'habit')
     end
   end
 
@@ -195,7 +197,7 @@ class HabitsController < ApplicationController
   def build_query_string(new_page)
     current_page_number = request.params['page']['number']
     query_string = request.query_string.gsub("page[number]=#{current_page_number}", "page[number]=#{new_page}")
-    request.base_url + request.path + "?" + query_string
+    "#{request.base_url}#{request.path}?#{query_string}"
   end
 
   def page_number

@@ -1,21 +1,22 @@
+# frozen_string_literal: true
+
 require_relative './presenter'
 class HabitPresenter < Presenter
   attr_reader :obj, :type, :relationship_obj, :relationship_type, :obj_collection, :links_metadata, :users_json
-  
-  
+
   def initialize(
-    object: nil, 
-    type: nil, 
+    object: nil,
+    type: nil,
     relationship_obj: nil,
-    relationship_type: nil, 
-    obj_collection: [], 
+    relationship_type: nil,
+    obj_collection: [],
     links_metadata: {},
     users_json: {}
   )
     @obj = object
     @type = type
     @relationship_obj = relationship_obj
-    @relationship_type = relationship_type 
+    @relationship_type = relationship_type
     @obj_collection = obj_collection
     @links_metadata = links_metadata
     @users_json = users_json
@@ -27,21 +28,21 @@ class HabitPresenter < Presenter
     present_resource.merge!(relationship)
   end
 
-  alias_method :build_user_json, :present_user
+  alias build_user_json present_user
 
   def present_users
     users_json.merge!(metadata).merge!(links)
   end
 
-  private 
+  private
 
   def relationship
     {
       "relationships": {
-        "#{relationship_type}":{
+        "#{relationship_type}": {
           "data": {
             "type": relationship_obj.class,
-            "id": relationship_obj.id,
+            "id": relationship_obj.id
           }
         }
       }

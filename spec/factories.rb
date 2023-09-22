@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 def user_attributes
   {
     email: Faker::Internet.email,
@@ -22,4 +24,3 @@ end
 def create_user(attributes = {})
   User.create!(user_attributes.merge(attributes))
 end
-

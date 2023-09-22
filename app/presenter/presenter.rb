@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 class Presenter
   attr_reader :obj, :type
 
   def initialize(obj, type)
     @obj = obj
-    @type = type 
+    @type = type
   end
 
   def present_errors
@@ -15,7 +17,7 @@ class Presenter
     }
   end
 
-  def present_resource 
+  def present_resource
     {
       "type": obj.class,
       "id": obj.id,

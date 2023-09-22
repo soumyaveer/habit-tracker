@@ -1,19 +1,20 @@
 # frozen_string_literal: true
-require "./config/environment"
+
+require './config/environment'
 
 class ApplicationController < Sinatra::Base
   configure do
     enable :sessions
     set :session_secret, ENV.fetch('SESSION_SECRET') { SecureRandom.hex(64) }
-    use Rack::CommonLogger, STDOUT
+    use Rack::CommonLogger, $stdout
   end
 
   configure :development do
-    require "sinatra/reloader"
+    require 'sinatra/reloader'
     register Sinatra::Reloader
   end
 
-  get "/" do
+  get '/' do
     erb :'/index'
   end
 
