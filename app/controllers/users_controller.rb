@@ -28,9 +28,9 @@ class UsersController < ApplicationController
 
   patch '/api/users/:id' do
     user = User.find(params[:id])
+    user.skip_password = true
     user.email = json_req_body_attrs[:email] if json_req_body_attrs[:email]
     user.name = json_req_body_attrs[:name] if json_req_body_attrs[:name]
-    user.password = json_req_body_attrs[:passowrd] if json_req_body_attrs[:password]
 
     if user.save
       json present(user).as_json
@@ -40,6 +40,27 @@ class UsersController < ApplicationController
       user_json[:errors] = user.errors.full_messages
 
       json Presenter.new(user_json, 'User').present_errors.as_json
+    end
+  end
+
+  put '/api/users/:id/password' do
+    user = User.find(params[:id]) 
+    password = json_req_body_attrs[:password].present? ? json_req_body_attrs[:password] : nil
+    is_valid_email = user.email == json_req_body_attrs[:email]
+    
+    if user && password && is_valid_email 
+      user.password = password 
+      if user.save
+        json present(user).as_json
+      else
+        status(422)
+        user_json = user.as_json
+        user_json[:errors] = user.errors.full_messages
+
+        json Presenter.new(user_json, 'User').present_errors.as_json
+      end
+    else
+      status(404)
     end
   end
 
